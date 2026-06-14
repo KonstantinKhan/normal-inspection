@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Gradle
+.gradle/
+build/
+
+# IntelliJ IDEA
+.idea/
+
+# Claude Code
+.claude/
+
+# Local properties
+local.properties
+
+# Compiled output
+*.class
+!gradle/wrapper/gradle-wrapper.jar

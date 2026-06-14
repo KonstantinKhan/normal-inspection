@@ -1,0 +1,26 @@
+[versions]
+exposed = "1.2.0"
+h2 = "2.4.240"
+kotlin = "2.3.21"
+logback = "1.5.34"
+mongodb = "4.11.5"
+odfdom = "0.13.0"
+coroutines = "1.11.0"
+
+[libraries]
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-r2dbc = { module = "org.jetbrains.exposed:exposed-r2dbc", version.ref = "exposed" }
+h2database-h2 = { module = "com.h2database:h2", version.ref = "h2" }
+h2database-r2dbc = { module = "io.r2dbc:r2dbc-h2", version = "1.1.0.RELEASE" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+mongodb-bson = { module = "org.mongodb:bson", version.ref = "mongodb" }
+mongodb-driverCore = { module = "org.mongodb:mongodb-driver-core", version.ref = "mongodb" }
+mongodb-driverSync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongodb" }
+odfdom-java = { module = "org.odftoolkit:odfdom-java", version.ref = "odfdom" }
+postgresql = { module = "org.postgresql:postgresql", version = "42.7.10" }
+coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines"}
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
