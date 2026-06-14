@@ -23,7 +23,6 @@ plugins {
 }
 include("normal-inspection-backend-ktor-app")
 include("normal-inspection-backend-doc-service")
-include("normal-inspection-backend-doc-provider")
 include("normal-inspection-backend-file-receiver")
 include("normal-inspection-backend-common")
 include("normal-inspection-backend-file-storage")
