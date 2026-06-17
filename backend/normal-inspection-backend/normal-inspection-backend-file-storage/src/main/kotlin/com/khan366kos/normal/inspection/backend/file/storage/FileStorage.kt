@@ -10,6 +10,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.nio.file.Files
+import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
 class FileStorage : IFileStorage {
@@ -28,5 +29,10 @@ class FileStorage : IFileStorage {
                 logger.error("Failed to store file: {}", path, e)
                 StorageOutcome.Failed(e)
             }
+        }
+
+    override fun list(): List<String> =
+        Files.list(Paths.get(".")).use { stream ->
+            stream.map { it.toString() }.toList()
         }
 }

@@ -8,4 +8,6 @@ interface IFileStorage {
         path: String,
         inputStream: InputStream
     ): StorageOutcome
+
+    fun list(): List<String>
 }

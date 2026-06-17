@@ -36,6 +36,8 @@ class FileReceiver(
         }
     }
 
+    fun list(): List<String> = storage.list()
+
     private fun sanitizeName(raw: String): String =
         raw.substringAfterLast('/')
             .substringAfterLast('\\')

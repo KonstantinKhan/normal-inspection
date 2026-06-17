@@ -1,5 +1,6 @@
 package com.khan366kos.normal.inspection.backend.ktor.app
 
+import com.example.doc.service.DocService
 import com.khan366kos.normal.inspection.backend.common.domain.ReceptionResult
 import com.khan366kos.normal.inspection.backend.file.receiver.FileReceiver
 import com.khan366kos.normal.inspection.backend.ktor.app.dto.InvalidPartDto
@@ -13,14 +14,17 @@ import io.ktor.http.content.forEachPart
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
 import io.ktor.server.routing.Routing
+import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import org.slf4j.LoggerFactory
+import java.io.File
 
 fun Routing.files() = route("files") {
     val receiver = FileReceiver()
     val logger = LoggerFactory.getLogger("FileRouter")
+    val docService = DocService()
 
     post("/upload") {
         val multipartData = call.receiveMultipart()
@@ -67,7 +71,21 @@ fun Routing.files() = route("files") {
             rejections.isNotEmpty() -> HttpStatusCode.UnprocessableEntity
             else -> HttpStatusCode.BadRequest
         }
+
+        if (accepted.isNotEmpty()) {
+            val firstFile = File(accepted.first())
+            docService.processor(firstFile)
+        }
+
         call.respond(status, response)
+    }
+
+    get("/") {
+
+        call.respond(
+            HttpStatusCode.OK,
+            receiver.list()
+        )
     }
 }
 
