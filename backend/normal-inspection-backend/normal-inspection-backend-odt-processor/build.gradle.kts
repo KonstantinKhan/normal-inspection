@@ -1,15 +1,10 @@
 plugins {
-    kotlin("jvm") version "2.3.21"
-}
-
-group = "com.khan366kos"
-version = "0.0.1"
-
-repositories {
-    mavenCentral()
+    alias(libs.plugins.kotlin.jvm)
 }
 
 dependencies {
+    implementation(libs.woodstox)
+
     testImplementation(kotlin("test"))
 }
 
