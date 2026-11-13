@@ -1,3 +1,9 @@
 package com.khan366kos.normal.inspection.backend.transport
 
-data class InvalidPartDtp()
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class InvalidPartDto(
+    val reason: String,
+    val detail: String,
+)

@@ -1,3 +1,10 @@
 package com.khan366kos.normal.inspection.backend.transport
 
-data class UploadResponseDto()
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class UploadResponseDto(
+    val accepted: List<String> = emptyList(),
+    val rejected: List<RejectionDto> = emptyList(),
+    val invalid: List<InvalidPartDto> = emptyList(),
+)

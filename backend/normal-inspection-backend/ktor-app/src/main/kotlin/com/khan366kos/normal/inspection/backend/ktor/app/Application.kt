@@ -7,9 +7,13 @@ fun main(args: Array<String>) {
     EngineMain.main(args)
 }
 
-fun Application.module() {
+fun Application.module(
+
+    appConfig: AppConfig = AppConfig()
+) {
+    callLogging()
     configureStatusPages()
     configureSerialization()
-    configureRouting()
+    configureRouting(appConfig)
     configureHttp()
 }

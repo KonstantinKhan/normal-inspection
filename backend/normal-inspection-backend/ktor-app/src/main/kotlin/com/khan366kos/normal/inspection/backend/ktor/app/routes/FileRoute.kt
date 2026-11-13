@@ -1,29 +1,27 @@
-package com.khan366kos.normal.inspection.backend.ktor.app
+package com.khan366kos.normal.inspection.backend.ktor.app.routes
 
 import com.example.doc.service.DocService
+import com.khan366kos.normal.inspection.backend.common.FilenameValidation
+import com.khan366kos.normal.inspection.backend.common.IFileReceiver
+import com.khan366kos.normal.inspection.backend.common.InvalidPartReason
 import com.khan366kos.normal.inspection.backend.common.domain.ReceptionResult
-import com.khan366kos.normal.inspection.backend.file.receiver.FileReceiver
-import com.khan366kos.normal.inspection.backend.ktor.app.dto.InvalidPartDto
-import com.khan366kos.normal.inspection.backend.ktor.app.dto.InvalidPartReason
-import com.khan366kos.normal.inspection.backend.ktor.app.dto.MessageResponse
-import com.khan366kos.normal.inspection.backend.ktor.app.dto.RejectionDto
-import com.khan366kos.normal.inspection.backend.ktor.app.dto.UploadResponse
+import com.khan366kos.normal.inspection.backend.transport.InvalidPartDto
+import com.khan366kos.normal.inspection.backend.transport.MessageResponseDto
+import com.khan366kos.normal.inspection.backend.transport.RejectionDto
+import com.khan366kos.normal.inspection.backend.transport.UploadResponseDto
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.PartData
 import io.ktor.http.content.forEachPart
 import io.ktor.server.request.receiveMultipart
 import io.ktor.server.response.respond
-import io.ktor.server.routing.Routing
+import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.utils.io.jvm.javaio.toInputStream
-import org.slf4j.LoggerFactory
 import java.io.File
 
-fun Routing.files() = route("files") {
-    val receiver = FileReceiver()
-    val logger = LoggerFactory.getLogger("FileRouter")
+fun Route.files(fileReceiver: IFileReceiver) = route("files") {
     val docService = DocService()
 
     post("/upload") {
@@ -33,20 +31,24 @@ fun Routing.files() = route("files") {
 
         multipartData.forEachPart { part ->
             when (part) {
-                is PartData.FormItem ->
-                    logger.debug("file description: {}", part.value)
+                is PartData.FormItem -> Unit
+                is PartData.FileItem ->
+                    when (val filenameValidation = fileReceiver.validateFilename(part.originalFileName)) {
+                        is FilenameValidation.Valid ->
+                            part.provider().toInputStream()
+                                .use { stream ->
+                                    results.add(fileReceiver.receiveFile(stream, filenameValidation.name))
+                                }
 
-                is PartData.FileItem -> when (val v = validateFilename(part.originalFileName)) {
-                    is FilenameValidation.Valid ->
-                        part.provider().toInputStream().use { stream ->
-                            results.add(receiver.receiveFile(stream, v.name))
+                        is FilenameValidation.Invalid -> {
+                            invalidParts.add(
+                                InvalidPartDto(
+                                    filenameValidation.reason.name,
+                                    invalidDetail(filenameValidation.reason)
+                                )
+                            )
                         }
-
-                    is FilenameValidation.Invalid -> {
-                        logger.info("Invalid file part: reason={}", v.reason)
-                        invalidParts.add(InvalidPartDto(v.reason.name, invalidDetail(v.reason)))
                     }
-                }
 
                 else -> Unit
             }
@@ -54,18 +56,15 @@ fun Routing.files() = route("files") {
         }
 
         if (results.isEmpty() && invalidParts.isEmpty()) {
-            call.respond(HttpStatusCode.BadRequest, MessageResponse("No file provided"))
+            call.respond(HttpStatusCode.BadRequest, MessageResponseDto("No file provided"))
             return@post
         }
 
         val accepted = results.filterIsInstance<ReceptionResult.Accepted>().map { it.name }
         val rejections = results.filterIsInstance<ReceptionResult.Rejected>()
-        rejections.forEach { r ->
-            logger.info("File rejected: reason={}, detail={}", r.reason, r.detail)
-        }
         val rejected = rejections.map { RejectionDto(it.reason.name, it.detail) }
 
-        val response = UploadResponse(accepted, rejected, invalidParts)
+        val response = UploadResponseDto(accepted, rejected, invalidParts)
         val status = when {
             accepted.isNotEmpty() -> HttpStatusCode.OK
             rejections.isNotEmpty() -> HttpStatusCode.UnprocessableEntity
@@ -73,31 +72,19 @@ fun Routing.files() = route("files") {
         }
 
         if (accepted.isNotEmpty()) {
-            val firstFile = File(accepted.first())
-            docService.processor(firstFile)
+            accepted.forEach { path ->
+                docService.processor(File(path))
+            }
         }
 
         call.respond(status, response)
     }
 
     get("/") {
-
         call.respond(
             HttpStatusCode.OK,
-            receiver.list()
         )
     }
-}
-
-sealed interface FilenameValidation {
-    data class Valid(val name: String) : FilenameValidation
-    data class Invalid(val reason: InvalidPartReason) : FilenameValidation
-}
-
-private fun validateFilename(raw: String?): FilenameValidation = when {
-    raw.isNullOrBlank() -> FilenameValidation.Invalid(InvalidPartReason.MISSING_FILENAME)
-    raw.any { it.isISOControl() } -> FilenameValidation.Invalid(InvalidPartReason.INVALID_CHARACTERS)
-    else -> FilenameValidation.Valid(raw)
 }
 
 private fun invalidDetail(reason: InvalidPartReason): String = when (reason) {

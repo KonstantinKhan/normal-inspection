@@ -1,7 +1,9 @@
 package com.khan366kos.normal.inspection.backend.file.receiver
 
+import com.khan366kos.normal.inspection.backend.common.FilenameValidation
 import com.khan366kos.normal.inspection.backend.common.IFileReceiver
 import com.khan366kos.normal.inspection.backend.common.IFileStorage
+import com.khan366kos.normal.inspection.backend.common.InvalidPartReason
 import com.khan366kos.normal.inspection.backend.common.domain.ReceptionResult
 import com.khan366kos.normal.inspection.backend.common.domain.RejectionReason
 import com.khan366kos.normal.inspection.backend.common.domain.StorageOutcome
@@ -25,6 +27,7 @@ class FileReceiver(
             when (val outcome = storage.store(safeName, bounded)) {
                 is StorageOutcome.Written ->
                     ReceptionResult.Accepted(outcome.name, outcome.size)
+
                 is StorageOutcome.Failed ->
                     ReceptionResult.Rejected(
                         RejectionReason.STORAGE_FAILURE,
@@ -35,6 +38,13 @@ class FileReceiver(
             ReceptionResult.Rejected(RejectionReason.TOO_LARGE, e.message ?: "size limit exceeded")
         }
     }
+
+    override fun validateFilename(raw: String?): FilenameValidation =
+        when {
+            raw.isNullOrBlank() -> FilenameValidation.Invalid(InvalidPartReason.MISSING_FILENAME)
+            raw.any { it.isISOControl() } -> FilenameValidation.Invalid(InvalidPartReason.INVALID_CHARACTERS)
+            else -> FilenameValidation.Valid(raw)
+        }
 
     fun list(): List<String> = storage.list()
 

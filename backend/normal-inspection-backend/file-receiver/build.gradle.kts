@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation(libs.coroutines)
 
-    implementation(projects.normalInspectionBackendCommon)
+    implementation(projects.common)
     implementation(projects.normalInspectionBackendFileStorage)
 
     testImplementation(kotlin("test"))

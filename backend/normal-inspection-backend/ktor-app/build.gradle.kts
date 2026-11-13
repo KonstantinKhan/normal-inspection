@@ -19,13 +19,15 @@ dependencies {
     implementation(ktorLibs.server.defaultHeaders)
     implementation(ktorLibs.server.netty)
     implementation(ktorLibs.server.statusPages)
+    implementation(ktorLibs.server.callLogging)
 
     implementation(libs.logback.classic)
 
     implementation(projects.normalInspectionBackendDocService)
 
-    implementation(projects.normalInspectionBackendCommon)
-    implementation(projects.normalInspectionBackendFileReceiver)
+    implementation(projects.common)
+    implementation(projects.transport)
+    implementation(projects.fileReceiver)
 
     testImplementation(kotlin("test"))
     testImplementation(ktorLibs.server.testHost)

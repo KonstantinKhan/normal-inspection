@@ -1,4 +1,6 @@
 package com.khan366kos.normal.inspection.backend.common
 
-class InvalidFileReason {
+enum class InvalidPartReason {
+    MISSING_FILENAME,
+    INVALID_CHARACTERS,
 }

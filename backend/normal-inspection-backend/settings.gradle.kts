@@ -21,9 +21,10 @@ dependencyResolutionManagement {
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
-include("normal-inspection-backend-ktor-app")
+include(":transport")
+include(":common")
+include(":ktor-app")
+include(":file-receiver")
 include("normal-inspection-backend-doc-service")
-include("normal-inspection-backend-file-receiver")
-include("normal-inspection-backend-common")
 include("normal-inspection-backend-file-storage")
 include("normal-inspection-backend-odt-processor")
