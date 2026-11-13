@@ -14,13 +14,15 @@ fun main() {
     val odtPath =
         Paths.get("/Users/khan/Projects/normal-inspection/backend/normal-inspection-backend/normal-inspection-backend-odt-processor/src/main/resources/test.odt")
     if (!Files.exists(odtPath)) return
-    ZipInputStream(Files.newInputStream(odtPath)).use { zip ->
-        var entry = zip.nextEntry
-        while (entry != null) {
-            if (entry.name == "content.xml") {
-                val reader = factory.createXMLStreamReader(zip)
+    ZipInputStream(Files.newInputStream(odtPath))
+        .use { zip ->
+            var entry = zip.nextEntry
+            while (entry != null) {
+                if (entry.name == "content.xml") {
+                    val reader = factory.createXMLStreamReader(zip)
+                    println(processor.parse(reader))
+                }
+                entry = zip.nextEntry
             }
-            entry = zip.nextEntry
         }
-    }
 }
