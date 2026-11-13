@@ -1,0 +1,34 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm)
+    alias(ktorLibs.plugins.ktor)
+    alias(libs.plugins.kotlin.serialization)
+}
+
+application {
+    mainClass = "io.ktor.server.netty.EngineMain"
+}
+
+kotlin {
+    jvmToolchain(21)
+}
+dependencies {
+    implementation(ktorLibs.serialization.kotlinx.json)
+    implementation(ktorLibs.server.contentNegotiation)
+    implementation(ktorLibs.server.core)
+    implementation(ktorLibs.server.cors)
+    implementation(ktorLibs.server.defaultHeaders)
+    implementation(ktorLibs.server.netty)
+    implementation(ktorLibs.server.statusPages)
+    implementation(ktorLibs.server.callLogging)
+
+    implementation(libs.logback.classic)
+
+    implementation(projects.normalInspectionBackendDocService)
+
+    implementation(projects.common)
+    implementation(projects.transport)
+    implementation(projects.fileReceiver)
+
+    testImplementation(kotlin("test"))
+    testImplementation(ktorLibs.server.testHost)
+}

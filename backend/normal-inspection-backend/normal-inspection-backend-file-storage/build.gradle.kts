@@ -6,7 +6,7 @@ dependencies {
     implementation(libs.coroutines)
     implementation(libs.logback.classic)
 
-    implementation(projects.normalInspectionBackendCommon)
+    implementation(projects.common)
 
     testImplementation(kotlin("test"))
 }

@@ -13,18 +13,19 @@ class DocService {
     private fun rootElement(doc: OdfTextDocument) = doc.contentDom.rootElement
 
     fun processor(file: File) {
-        OdfTextDocument.loadDocument(file).use { document ->
-            val rootElement = rootElement(document)
-            val userStyles = userStyles(rootElement)
-            if (userStyles.isNotEmpty()) {
-                println("В документе есть пользовательские стили:")
-                userStyles.forEach { styles ->
-                    println(styles)
-                }
-            } else println("В документе пользовательские стили отсутствуют")
+        OdfTextDocument.loadDocument(file)
+            .use { document ->
+                val rootElement = rootElement(document)
+                val userStyles = userStyles(rootElement)
+                if (userStyles.isNotEmpty()) {
+                    println("В документе есть пользовательские стили:")
+                    userStyles.forEach { styles ->
+                        println(styles)
+                    }
+                } else println("В документе пользовательские стили отсутствуют")
 
-            content(rootElement, userStyles)
-        }
+                content(rootElement, userStyles)
+            }
     }
 
     fun userStyles(rootElement: OfficeDocumentContentElement): List<String> {
@@ -45,10 +46,12 @@ class DocService {
         )
         for (i in 0 until styleNodes.length) {
             val styleElement = styleNodes.item(i) as? Element ?: continue
-            styles.add(styleElement.getAttributeNS(
-                OdfDocumentNamespace.STYLE.uri,
-                "name"
-            ))
+            styles.add(
+                styleElement.getAttributeNS(
+                    OdfDocumentNamespace.STYLE.uri,
+                    "name"
+                )
+            )
         }
         return styles
     }
